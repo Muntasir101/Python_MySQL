@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
 import mysql.connector
+from flask_swagger import swagger
 
 app = Flask(__name__)
+
 db = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -11,8 +13,23 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 
+@app.route('/swagger')
+def swagger_docs():
+    swag = swagger(app)
+    swag['info']['title'] = 'User Management API'
+    swag['info']['version'] = '1.0'
+    return jsonify(swag)
+
+
 @app.route('/users', methods=['GET'])
 def get_all_users():
+    """
+        Get all users
+        ---
+        responses:
+          200:
+            description: List of users
+        """
     # Fetch all records from the database
     cursor.execute("SELECT * FROM users")
     users = cursor.fetchall()
